@@ -35,15 +35,38 @@ function authenticateJWT(req, res, next) {
 
 function ensureLoggedIn(req, res, next) {
   try {
-    if (!res.locals.user) throw new UnauthorizedError();
+    if (!res.locals.user) throw new UnauthorizedError("Must be logged in to access this route");
     return next();
   } catch (err) {
     return next(err);
   }
 }
 
+/** Middleware to use when admin is logged in.
+ *
+ * If not, raises Unauthorized.
+ */
+
+function ensureAdmin(req, res, next) {
+  if (!res.locals.user.isAdmin) throw new UnauthorizedError("Must be an admin to access this route");
+  return next();
+}
+
+/** Middleware to use when admin or correct user is logged in.
+ *
+ * If not, raises Unauthorized.
+ */
+
+function ensureAdminOrCorrectUser(req, res, next) {
+  if (!res.locals.user.isAdmin && req.params.username !== res.locals.user.username) {
+    throw new UnauthorizedError("Must be an admin or current user to access this route");
+  }
+  return next();
+}
 
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
+  ensureAdmin,
+  ensureAdminOrCorrectUser
 };
