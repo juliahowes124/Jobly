@@ -60,7 +60,7 @@ describe("create", function () {
 
 describe("findAll", function () {
   test("works: no filter", async function () {
-    let companies = await Company.findAll();
+    let companies = await Company.findAll({});
     expect(companies).toEqual([
       {
         handle: "c1",
@@ -84,6 +84,26 @@ describe("findAll", function () {
         logoUrl: "http://c3.img",
       },
     ]);
+  });
+  test("works: filters", async function () {
+    let companies = await Company.findAll({name: 'C2', minEmployees: '2', maxEmployees: '3'});
+    expect(companies).toEqual([
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img",
+      }
+    ]);
+  });
+  test("works: filters, invalid params", async function () {
+    try {
+      await Company.findAll({name: 'C2', minEmployees: '4', maxEmployees: '3'});
+    } catch(err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+      expect(err.message).toEqual("min employees can't be greater than max employees")
+    }
   });
 });
 

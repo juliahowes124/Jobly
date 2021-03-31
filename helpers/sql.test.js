@@ -22,3 +22,5 @@ describe("Tests sqlForPartialUpdate functionality", () => {
     }
   });
 })
+
+//do other sql test later

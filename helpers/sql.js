@@ -23,4 +23,34 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
-module.exports = { sqlForPartialUpdate };
+function sqlForFiltering(filterParams) {
+
+  if(+filterParams.minEmployees > +filterParams.maxEmployees) {
+    throw new BadRequestError("min employees can't be greater than max employees")
+  }
+  let paramCounter = 1;
+  let sqlCols = [];
+  let values = [];
+
+  if(filterParams.name) {
+    sqlCols.push(`name ILIKE '%' || $${paramCounter} || '%' `);
+    paramCounter++;
+    values.push(filterParams.name);
+  }
+  if(filterParams.minEmployees) {
+    sqlCols.push(`num_employees >= $${paramCounter} `);
+    paramCounter++;
+    values.push(filterParams.minEmployees);
+  }
+  if(filterParams.maxEmployees) {
+    sqlCols.push(`num_employees <= $${paramCounter} `);
+    values.push(filterParams.maxEmployees);
+  }
+  
+  return {
+    sqlCols: sqlCols.join('AND '),
+    values
+  }
+}
+
+module.exports = { sqlForPartialUpdate, sqlForFiltering };
