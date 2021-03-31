@@ -45,15 +45,12 @@ class Company {
   }
 
   /** Find all companies.
-   *
+   * Uses sqlForFiltering to generate filtering commands for sql query
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
   static async findAll(filterParams) {
-    console.log(filterParams)
     let {sqlCols, values} = sqlForFiltering(filterParams);
-    console.log('COLS', sqlCols);
-    console.log('vals', values)
     const companiesRes = await db.query(
           `SELECT handle,
                   name,

@@ -114,6 +114,7 @@ describe("GET /companies", function () {
         const resp = await request(app).get("/companies?name=c2&minEmployees=4&maxEmployees=2");
         expect(resp.statusCode).toEqual(400);
     });
+    //test when get nothing back
 
   test("fails: test next() handler", async function () {
     // there's no normal failure event which will cause this route to fail ---

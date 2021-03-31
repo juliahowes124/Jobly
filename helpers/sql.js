@@ -23,27 +23,28 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
+// filterParams: Object of query parameters
+// sqlForFilterins is used to generate sql commands for filtering
+// to inject into findAll() companies class method, returns
+// obj with string of commands and parameterized value
 function sqlForFiltering(filterParams) {
 
   if(+filterParams.minEmployees > +filterParams.maxEmployees) {
     throw new BadRequestError("min employees can't be greater than max employees")
   }
-  let paramCounter = 1;
   let sqlCols = [];
   let values = [];
 
   if(filterParams.name) {
-    sqlCols.push(`name ILIKE '%' || $${paramCounter} || '%' `);
-    paramCounter++;
-    values.push(filterParams.name);
+    sqlCols.push(`name ILIKE '%' || $${sqlCols.length + 1} || '%' `); //or concat()
+    values.push(filterParams.name); //add % to this - another way
   }
   if(filterParams.minEmployees) {
-    sqlCols.push(`num_employees >= $${paramCounter} `);
-    paramCounter++;
+    sqlCols.push(`num_employees >= $${sqlCols.length + 1} `);
     values.push(filterParams.minEmployees);
   }
   if(filterParams.maxEmployees) {
-    sqlCols.push(`num_employees <= $${paramCounter} `);
+    sqlCols.push(`num_employees <= $${sqlCols.length + 1} `);
     values.push(filterParams.maxEmployees);
   }
   

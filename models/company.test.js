@@ -105,6 +105,7 @@ describe("findAll", function () {
       expect(err.message).toEqual("min employees can't be greater than max employees")
     }
   });
+  //try other combos, one filter only, etc. 
 });
 
 /************************************** get */
