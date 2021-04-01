@@ -98,10 +98,15 @@ router.delete("/:username", ensureLoggedIn, ensureAdminOrCorrectUser, async func
   return res.json({ deleted: req.params.username });
 });
 
+/** POST /[username]/jobs/[id]  =>  { applied: jobId }
+ *
+ * Authorization required: login, must be admin or correct user
+ **/
 
+//check if user in res.locals in 2nd middleware, to get rid of ensureLoggedIn
 router.post("/:username/jobs/:id", ensureLoggedIn, ensureAdminOrCorrectUser, async (req, res) => {
   const applied = await User.apply(req.params.username, req.params.id);
-  return res.json({ applied });
+  return res.status(201).json({ applied });
 });
 
 

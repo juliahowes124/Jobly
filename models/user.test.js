@@ -14,7 +14,13 @@ const {
   commonAfterAll,
 } = require("./_testCommon");
 
-beforeAll(commonBeforeAll);
+let jobId1;
+
+beforeAll(async () => {
+  await commonBeforeAll();
+  let j1Res = await db.query(`SELECT id FROM jobs WHERE title='j1'`);
+  jobId1 = j1Res.rows[0].id;
+});
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
@@ -132,7 +138,7 @@ describe("findAll", function () {
 /************************************** get */
 
 describe("get", function () {
-  test("works", async function () {
+  test("works with no jobs", async function () {
     let user = await User.get("u1");
     expect(user).toEqual({
       username: "u1",
@@ -140,6 +146,22 @@ describe("get", function () {
       lastName: "U1L",
       email: "u1@email.com",
       isAdmin: false,
+      jobs: []
+    });
+  });
+
+  test("works with jobs", async function () {
+    await db.query(`
+                  INSERT INTO applications(username, job_id)
+                  VALUES ('u2', $1)`, [jobId1])
+    let user = await User.get("u2");
+    expect(user).toEqual({
+      username: "u2",
+      firstName: "U2F",
+      lastName: "U2L",
+      email: "u2@email.com",
+      isAdmin: false,
+      jobs: [jobId1]
     });
   });
 
@@ -228,3 +250,34 @@ describe("remove", function () {
     }
   });
 });
+
+/************************************** apply */
+
+describe("apply for job", function () {
+  test("works", async function () {
+    const jobId = await User.apply('u1', jobId1);
+    expect(jobId).toEqual(jobId1);
+    const res = await db.query(`SELECT * FROM applications`);
+    expect(res.rows.length).toEqual(1);
+  });
+
+  test("doesn't work if username or job doesn't exist", async function() {
+    try {
+      await User.apply('none', 0);
+      fail();
+    } catch(err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("doesn't work if application dup", async function() {
+    try {
+      await User.apply('u1', jobId1);
+      await User.apply('u1', jobId1);
+      fail();
+    } catch(err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  })
+})
+

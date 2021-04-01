@@ -132,17 +132,17 @@ class User {
                   is_admin AS "isAdmin",
                   job_id AS "jobId"
            FROM users AS u
-           JOIN applications AS a ON a.username = u.username
+           LEFT JOIN applications AS a ON a.username = u.username
            WHERE u.username = $1`,
         [username],
     );
+    
+    if (!userRes.rows[0]) throw new NotFoundError(`No user: ${username}`);
 
-    const jobIds = userRes.rows.map(o => o.jobId);
+    const jobIds = userRes.rows.map(o => o.jobId).filter(id => id);
     const user = { ...userRes.rows[0], jobs: jobIds };
     delete user.jobId;
       
-    if (!user) throw new NotFoundError(`No user: ${username}`);
-    
     return user;
   }
  
@@ -212,7 +212,7 @@ class User {
 
   /** Applies user to a job via id */
   static async apply(username, id) {
-    
+    //need these queries, or let db error happen?
     const checkUserRes = await db.query(`SELECT * 
                                           FROM users
                                           WHERE username = $1`,
@@ -222,9 +222,19 @@ class User {
                                           FROM jobs
                                           WHERE id = $1`,
                                           [id]);
+
+    const duplicateCheck = await db.query(`SELECT *
+                                            FROM applications
+                                            WHERE username = $1
+                                            AND job_id = $2`,
+                                            [username, id]);
     
     if (!checkUserRes.rows[0] || !checkJobRes.rows[0]) {
       throw new NotFoundError("No such combination exists");
+    }
+
+    if (duplicateCheck.rows[0]) {
+      throw new BadRequestError("Application already exists!")
     }
 
     const result = await db.query(`INSERT INTO applications (username, job_id)
