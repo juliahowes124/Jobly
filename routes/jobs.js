@@ -18,6 +18,11 @@ const { remove } = require("../models/job");
 
 const router = express.Router();
 
+router.get('/', async (req, res) => {
+  const jobs = await Job.findAll(req.query);
+  return res.json({ jobs });
+})
+
 router.get("/:id", async (req, res) => {
   const job = await Job.get(req.params.id);
   return res.json({ job });

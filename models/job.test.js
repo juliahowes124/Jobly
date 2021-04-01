@@ -44,6 +44,43 @@ describe('create', () => {
   });
 })
 
+describe("findAll", function () {
+  test("works: no filter", async function () {
+    let jobs = await Job.findAll({});
+    expect(jobs).toEqual([
+      {
+        title: "j1",
+        salary: 60000,
+        equity: "0.005",
+        companyHandle: "c1"
+      },
+      {
+        title: "j2",
+        salary: 100000,
+        equity: "0",
+        companyHandle: "c2",
+      }
+    ]);
+  });
+
+  test("works: filters", async function () {
+    let jobs = await Job.findAll({title: 'j2', minSalary: 80000 , hasEquity: false});
+    expect(jobs).toEqual([
+      {
+        title: "j2",
+        salary: 100000,
+        equity: "0",
+        companyHandle: "c2",
+      }
+    ]);
+  });
+
+  test("works: filters, no results", async function () {
+    let jobs = await Job.findAll({title: 'j1', minSalary: 80000 , hasEquity: false});
+    expect(jobs).toEqual([]);
+  });
+});
+
 describe("get", () => {
   test("works", async function () {
     const job = await Job.get(jobId1);

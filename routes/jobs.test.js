@@ -25,6 +25,62 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
+describe("GET /jobs", function () {
+  test("ok for anon", async function () {
+    const resp = await request(app).get("/jobs");
+    expect(resp.body).toEqual({
+      jobs:
+          [
+            {
+              title: "j1",
+              salary: 60000,
+              equity: "0.005",
+              companyHandle: "c1"
+            },
+            {
+              title: "j2",
+              salary: 100000,
+              equity: "0",
+              companyHandle: "c2",
+            }
+          ]
+    });
+  });
+
+  test("ok for anon with filters", async function () {
+    const resp = await request(app).get("/jobs?title=j2&minSalary=80000&hasEquity=");
+    expect(resp.body).toEqual({
+      jobs:
+          [
+            {
+              title: "j2",
+              salary: 100000,
+              equity: "0",
+              companyHandle: "c2"
+            }
+          ]
+    });
+  });
+
+  test("ok for anon with filters, no results", async function () {
+    const resp = await request(app).get("/jobs?title=j1&minSalary=80000&hasEquity=");
+    expect(resp.body).toEqual({
+      jobs:
+          []
+    });
+  });
+
+  test("fails: test next() handler", async function () {
+    // there's no normal failure event which will cause this route to fail ---
+    // thus making it hard to test that the error-handler works with it. This
+    // should cause an error, all right :)
+    await db.query("DROP TABLE jobs CASCADE");
+    const resp = await request(app)
+        .get("/jobs")
+    expect(resp.statusCode).toEqual(500);
+  });
+});
+
 describe("GET /jobs/:id", () => {
   test('ok for non-admins', async () => {
     let resp = await request(app).get(`/jobs/${jobId1}`);

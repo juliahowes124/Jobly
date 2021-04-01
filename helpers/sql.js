@@ -54,4 +54,27 @@ function sqlForFiltering(filterParams) {
   }
 }
 
-module.exports = { sqlForPartialUpdate, sqlForFiltering };
+function sqlForFilteringJob(filterParams) {
+
+  let sqlCols = [];
+  let values = [];
+
+  if(filterParams.title) {
+    sqlCols.push(`title ILIKE '%' || $${sqlCols.length + 1} || '%' `); //or concat()
+    values.push(filterParams.title); //add % to this - another way
+  }
+  if(filterParams.minSalary) {
+    sqlCols.push(`salary >= $${sqlCols.length + 1} `);
+    values.push(filterParams.minSalary);
+  }
+  if(filterParams.hasEquity) {
+    sqlCols.push(`equity > 0 `);
+  }
+  
+  return {
+    sqlCols: sqlCols.join('AND '),
+    values
+  }
+}
+
+module.exports = { sqlForPartialUpdate, sqlForFiltering, sqlForFilteringJob };
