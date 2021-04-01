@@ -2,7 +2,7 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
-// const { sqlForPartialUpdate, sqlForFiltering } = require("../helpers/sql");
+const { sqlForPartialUpdate, sqlForFiltering } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
@@ -89,9 +89,7 @@ class Job {
     data = {...data, companyHandle: undefined, id: undefined}
     const { setCols, values } = sqlForPartialUpdate(
         data,
-        {
-          companyHandle: "company_handle"
-        });
+        {});
     const idVarIdx = "$" + (values.length + 1);
 
     const querySql = `UPDATE jobs 
@@ -122,8 +120,9 @@ class Job {
            RETURNING id`,
         [id]);
     const job = result.rows[0];
-
     if (!job) throw new NotFoundError(`No job: ${id}`);
+
+    return job;
   }
 }
 
