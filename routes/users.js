@@ -99,4 +99,10 @@ router.delete("/:username", ensureLoggedIn, ensureAdminOrCorrectUser, async func
 });
 
 
+router.post("/:username/jobs/:id", ensureLoggedIn, ensureAdminOrCorrectUser, async (req, res) => {
+  const applied = await User.apply(req.params.username, req.params.id);
+  return res.json({ applied });
+});
+
+
 module.exports = router;

@@ -125,22 +125,27 @@ class User {
 
   static async get(username) {
     const userRes = await db.query(
-          `SELECT username,
+          `SELECT u.username,
                   first_name AS "firstName",
                   last_name AS "lastName",
                   email,
-                  is_admin AS "isAdmin"
-           FROM users
-           WHERE username = $1`,
+                  is_admin AS "isAdmin",
+                  job_id AS "jobId"
+           FROM users AS u
+           JOIN applications AS a ON a.username = u.username
+           WHERE u.username = $1`,
         [username],
     );
 
-    const user = userRes.rows[0];
-
+    const jobIds = userRes.rows.map(o => o.jobId);
+    const user = { ...userRes.rows[0], jobs: jobIds };
+    delete user.jobId;
+      
     if (!user) throw new NotFoundError(`No user: ${username}`);
-
+    
     return user;
   }
+ 
 
   /** Update user data with `data`.
    *
@@ -203,6 +208,31 @@ class User {
     const user = result.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
+  }
+
+  /** Applies user to a job via id */
+  static async apply(username, id) {
+    
+    const checkUserRes = await db.query(`SELECT * 
+                                          FROM users
+                                          WHERE username = $1`,
+                                          [username]);
+    
+    const checkJobRes = await db.query(`SELECT * 
+                                          FROM jobs
+                                          WHERE id = $1`,
+                                          [id]);
+    
+    if (!checkUserRes.rows[0] || !checkJobRes.rows[0]) {
+      throw new NotFoundError("No such combination exists");
+    }
+
+    const result = await db.query(`INSERT INTO applications (username, job_id)
+                                     VALUES ($1, $2)
+                                     RETURNING job_id AS "jobId"`,
+                                  [username, id]);
+    
+    return result.rows[0].jobId;
   }
 }
 
