@@ -1,5 +1,5 @@
 const { BadRequestError } = require("../expressError");
-const { sqlForPartialUpdate, sqlForFiltering } = require("./sql");
+const { sqlForPartialUpdate, sqlForFiltering, sqlForFilteringJob } = require("./sql");
 
 const data = { name: "Test", val1: "A", val2: "B", multiName: "Test Test"};
 const jsToSql = { multiName: "multi_name" };
@@ -40,3 +40,22 @@ describe("Tests sqlForFiltering functionality", () => {
     }
   });
 })
+
+describe("Tests sqlForFilteringJob functionality", () => {
+  test("valid inputs", () => {
+    const result = sqlForFilteringJob({ title: "chef", minSalary: 50000, hasEquity: true });
+    expect(result.sqlCols).toEqual(
+      `title ILIKE '%' || $1 || '%' AND salary >= $2 AND equity > 0 `
+    );
+    expect(result.values).toEqual(["chef", 50000]);
+  });
+
+  test("works for empty inputs", () => {
+    const result = sqlForFilteringJob({});
+    expect(result).toEqual({
+      sqlCols: '',
+      values: []
+    }
+    );
+  });
+});

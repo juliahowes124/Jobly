@@ -54,6 +54,10 @@ function sqlForFiltering(filterParams) {
   }
 }
 
+// filterParams: Object of query parameters
+// sqlForFilteringJob is used to generate sql commands for filtering
+// to inject into findAll() job class method, returns
+// obj with string of commands and parameterized value
 function sqlForFilteringJob(filterParams) {
 
   let sqlCols = [];

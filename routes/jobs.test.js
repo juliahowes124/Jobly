@@ -154,7 +154,7 @@ describe("POST /jobs", function () {
     expect(resp.statusCode).toEqual(400);
   });
 
-  test("bad request with invalid data", async function () {
+  test("bad request with invalid equity data", async function () {
     const resp = await request(app)
         .post("/jobs")
         .send({
@@ -237,7 +237,7 @@ describe("PATCH /jobs/:id", function () {
     expect(resp.statusCode).toEqual(400);
   });
 
-  test("bad request on invalid data", async function () {
+  test("bad request on invalid equity data (equity < 1)", async function () {
     const resp = await request(app)
         .patch(`/jobs/${jobId1}`)
         .send({

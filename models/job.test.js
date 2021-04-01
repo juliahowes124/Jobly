@@ -21,8 +21,6 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-
-
 describe('create', () => {
   const newJob = {
     title: "test job",
@@ -43,6 +41,8 @@ describe('create', () => {
     expect(result.rows[0]).toEqual({...newJob, equity: '0.00123'});
   });
 })
+
+/************************************** findAll */
 
 describe("findAll", function () {
   test("works: no filter", async function () {
@@ -81,6 +81,8 @@ describe("findAll", function () {
   });
 });
 
+/************************************** get */
+
 describe("get", () => {
   test("works", async function () {
     const job = await Job.get(jobId1);
@@ -101,6 +103,8 @@ describe("get", () => {
     }
   });
 });
+
+/************************************** update */
 
 describe("update", () => {
   test("works for valid inputs", async function () {
@@ -151,6 +155,8 @@ describe("update", () => {
     }
   });
 });
+
+/************************************** remove */
 
 describe("remove", () => {
   test("works", async () => {

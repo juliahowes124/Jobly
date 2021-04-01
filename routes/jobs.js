@@ -8,13 +8,12 @@ const express = require("express");
 const {
   ensureLoggedIn,
   ensureAdmin,
-  ensureAdminOrCorrectUser,
 } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const Job = require("../models/job");
 const jobNewSchema = require("../schemas/jobNew.json");
 const jobUpdateSchema = require("../schemas/jobUpdate.json");
-const { remove } = require("../models/job");
+
 
 const router = express.Router();
 
@@ -23,10 +22,12 @@ router.get('/', async (req, res) => {
   return res.json({ jobs });
 })
 
+
 router.get("/:id", async (req, res) => {
   const job = await Job.get(req.params.id);
   return res.json({ job });
 });
+
 
 router.post("/", ensureLoggedIn, ensureAdmin, async (req, res) => {
   const validator = jsonschema.validate(req.body, jobNewSchema);
@@ -39,6 +40,7 @@ router.post("/", ensureLoggedIn, ensureAdmin, async (req, res) => {
   return res.status(201).json({ job });
 });
 
+
 router.patch("/:id", ensureLoggedIn, ensureAdmin, async (req, res) => {
   const validator = jsonschema.validate(req.body, jobUpdateSchema);
   if (!validator.valid) {
@@ -49,6 +51,7 @@ router.patch("/:id", ensureLoggedIn, ensureAdmin, async (req, res) => {
   const job = await Job.update(req.params.id, req.body);
   return res.json({ job });
 });
+
 
 router.delete("/:id", ensureLoggedIn, ensureAdmin, async (req, res) => {
   const { id } = await Job.remove(req.params.id);
