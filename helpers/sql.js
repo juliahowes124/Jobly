@@ -13,7 +13,7 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
 
   // {firstName: 'Aliya', age: 32} => ['"first_name"=$1', '"age"=$2']
   // cols: Formats SET SQL command string with parameterized queries
-  const cols = keys.map((colName, idx) =>
+  const cols = keys.filter(k => dataToUpdate[k]).map((colName, idx) =>
       `"${jsToSql[colName] || colName}"=$${idx + 1}`,
   );
 
