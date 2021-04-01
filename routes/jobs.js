@@ -31,7 +31,7 @@ router.post("/", ensureLoggedIn, ensureAdmin, async (req, res) => {
   }
 
   const job = await Job.create(req.body);
-  return res.json({ job });
+  return res.status(201).json({ job });
 });
 
 router.patch("/:id", ensureLoggedIn, ensureAdmin, async (req, res) => {
