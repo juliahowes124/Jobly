@@ -12,6 +12,9 @@ const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
 
+
+const generator = require('generate-password');
+
 const router = express.Router();
 
 
@@ -33,7 +36,10 @@ router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
     const errs = validator.errors.map(e => e.stack);
     throw new BadRequestError(errs);
   }
-
+  req.body.password = generator.generate({
+    numbers: true,
+    symbols: true
+  });
   const user = await User.register(req.body);
   const token = createToken(user);
   return res.status(201).json({ user, token });
